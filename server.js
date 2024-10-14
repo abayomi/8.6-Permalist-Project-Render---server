@@ -73,7 +73,7 @@ async function getItems() {
 //   });
 // });
 
-app.get("/", async (req, res) => {
+app.get("/", (req, res) => {
   console.log("Info log: starting fetching / in server");
   res.send("<h1>server</h1>");
   console.log("Info log: ending fetching / in server");
