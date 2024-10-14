@@ -20,7 +20,7 @@ const db = new pg.Client({
   host: process.env.HOST,
   database: process.env.DATABASE,
   password: process.env.PASSWORD,
-  port: process.env.PORT,
+  port: process.env.DB_PORT,
   ssl: true,
 });
 console.log("Info log: db.on.");
@@ -72,6 +72,12 @@ async function getItems() {
 //     listItems: items,
 //   });
 // });
+
+app.get("/", async (req, res) => {
+  console.log("Info log: starting fetching / in server");
+  res.send("<h1>server</h1>");
+  console.log("Info log: ending fetching / in server");
+});
 
 app.get("/items", async (req, res) => {
   console.log("Info log: starting fetching items in server");
