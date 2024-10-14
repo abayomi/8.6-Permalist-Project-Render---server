@@ -1,9 +1,13 @@
 import express from "express";
 import pg from "pg";
 import env from "dotenv";
+import { fileURLToPath } from "url";
+import path, { dirname } from "path";
 
 const app = express();
 const port = 4000;
+const _dirname = dirname(fileURLToPath(import.meta.url));
+console.log("_dirname:" + _dirname);
 
 console.log("Info log: setting up program to read env file.");
 env.config();
