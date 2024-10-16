@@ -46,14 +46,11 @@ await db
 //username is postgrespermalist in render
 console.log("Info log: middleware starting");
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+//app.use(express.static("public"));
 app.use(express.json());
 console.log("Info log: midleware ending");
 
-let items = [
-  { id: 1, title: "Buy milk" },
-  { id: 2, title: "Finish homework" },
-];
+let items = [];
 
 function performActionsOnceDBConntcted() {}
 
@@ -104,7 +101,7 @@ app.post("/addItem", async (req, res) => {
       res.send({ message: "Success" });
       console.log("Info log: ending adding an item in server");
     } catch (error) {
-      console.log(
+      console.error(
         "Error log: There was an error while adding item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -112,7 +109,7 @@ app.post("/addItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.log(
+    console.error(
       "Error log: there was no item sent to the server but the add method was called."
     );
   }
@@ -129,7 +126,7 @@ app.post("/addItem", async (req, res) => {
 //   res.redirect("/");
 // });
 
-app.post("/editItem", async (req, res) => {
+app.patch("/editItem", async (req, res) => {
   console.log("Info log: starting editing an item in server");
   let updatedItemTitle = req.body.updatedItemTitle;
   let updatedItemId = req.body.updatedItemId;
@@ -143,7 +140,7 @@ app.post("/editItem", async (req, res) => {
       res.send({ message: "Success" });
       console.log("Info log: ending editing an item in server");
     } catch (error) {
-      console.log(
+      console.error(
         "Error log: There was an error while editing item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -151,7 +148,7 @@ app.post("/editItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.log(
+    console.error(
       "Error log: either the item's ID or body were missing, but the edit method was called."
     );
   }
@@ -163,16 +160,17 @@ app.post("/editItem", async (req, res) => {
 //   res.redirect("/");
 // });
 
-app.post("/deleteItem", async (req, res) => {
+app.delete("/deleteItem", async (req, res) => {
   console.log("Info log: starting deleteing an item in server");
-  let deleteItemId = req.body.deleteItemId;
+  console.log("Info log: req.body.data.deleteItemId:" + req.body.deleteItemId);
+  let deleteItemId = parseInt(req.body.deleteItemId);
   if (deleteItemId != undefined) {
     try {
       let response = db.query("delete from items where id=$1", [deleteItemId]);
       res.send({ message: "Success" });
       console.log("Info log: ending deleteing an item in server");
     } catch (error) {
-      console.log(
+      console.error(
         "Error log: There was an error while deteling item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -180,7 +178,7 @@ app.post("/deleteItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.log(
+    console.error(
       "Error log: there was no id sent to the server but the delete method was called."
     );
   }
