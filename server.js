@@ -3,15 +3,18 @@ import pg from "pg";
 import env from "dotenv";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
+import Debug from "debug";
 
+const debugInfo = Debug("apigateway-info-logs");
+const debugError = Debug("apigateway-error-logs");
 const app = express();
 const port = 4000;
 const _dirname = dirname(fileURLToPath(import.meta.url));
-console.log("_dirname:" + _dirname);
+debugInfo("_dirname:" + _dirname);
 
-console.log("Info log: setting up program to read env file.");
+debugInfo("Info log: setting up program to read env file.");
 env.config();
-console.log("Info log: new pg client creating.");
+debugInfo("Info log: new pg client creating.");
 
 /* ssl: true needs to be there to prevent the error below which showed up on the console:
 "connection error Error: read ECONNRESET at TCP.onStreamRead (node:internal/stream_base_commons:218:20) "*/
@@ -21,48 +24,48 @@ const db = new pg.Client({
   database: process.env.DATABASE,
   password: process.env.PASSWORD,
   port: process.env.DB_PORT,
-  ssl:true,
+  ssl: true,
 });
-console.log("Info log: db.on.");
+debugInfo("Info log: db.on.");
 db.on("error", (err) => {
-  console.error(
+  debugError(
     "error log: something has gone wrong with db connection!",
     err.stack
   );
 });
-console.log("Info log: db connection attempt.");
+debugInfo("Info log: db connection attempt.");
 await db
   .connect()
   .then(() => {
-    console.log(
+    debugInfo(
       "Info log: db connected, now action dependent on DB can be performed"
     );
     performActionsOnceDBConntcted();
   })
   .catch((err) => {
-    console.error("Error log: DB connection error", err);
+    debugError("Error log: DB connection error", err);
   });
 
 //username is postgrespermalist in render
-console.log("Info log: middleware starting");
+debugInfo("Info log: middleware starting");
 app.use(express.urlencoded({ extended: true }));
 //app.use(express.static("public"));
 app.use(express.json());
-console.log("Info log: midleware ending");
+debugInfo("Info log: midleware ending");
 
 let items = [];
 
 function performActionsOnceDBConntcted() {}
 
 async function getItems() {
-  //console.log("in getItems");
+  //debugInfo("in getItems");
   let response = await db.query("select * from items");
-  //console.log("end getItems");
+  //debugInfo("end getItems");
   return response.rows;
 }
 
 // app.get("/", async (req, res) => {
-//   //console.log("in /");
+//   //debugInfo("in /");
 //   items = await getItems();
 //   res.render("index.ejs", {
 //     listTitle: "Today",
@@ -71,16 +74,16 @@ async function getItems() {
 // });
 
 app.get("/", (req, res) => {
-  console.log("Info log: starting fetching / in server");
+  debugInfo("Info log: starting fetching / in server");
   res.send("<h1>server</h1>");
-  console.log("Info log: ending fetching / in server");
+  debugInfo("Info log: ending fetching / in server");
 });
 
 app.get("/items", async (req, res) => {
-  console.log("Info log: starting fetching items in server");
+  debugInfo("Info log: starting fetching items in server");
   items = await getItems();
   res.send({ listTitle: "ARC To Do List", listItems: items });
-  console.log("Info log: ending fetching items in server");
+  debugInfo("Info log: ending fetching items in server");
 });
 
 // app.post("/add", async (req, res) => {
@@ -90,8 +93,8 @@ app.get("/items", async (req, res) => {
 //   res.redirect("/");
 // });
 app.post("/addItem", async (req, res) => {
-  console.log("Info log: starting adding an item in server");
-  console.log("req.body:" + JSON.stringify(req.body));
+  debugInfo("Info log: starting adding an item in server");
+  debugInfo("req.body:" + JSON.stringify(req.body));
   const item = req.body.newItem;
   if (item != undefined) {
     try {
@@ -99,9 +102,9 @@ app.post("/addItem", async (req, res) => {
         item,
       ]);
       res.send({ message: "Success" });
-      console.log("Info log: ending adding an item in server");
+      debugInfo("Info log: ending adding an item in server");
     } catch (error) {
-      console.error(
+      debugError(
         "Error log: There was an error while adding item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -109,7 +112,7 @@ app.post("/addItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.error(
+    debugError(
       "Error log: there was no item sent to the server but the add method was called."
     );
   }
@@ -118,7 +121,7 @@ app.post("/addItem", async (req, res) => {
 // app.post("/edit", async (req, res) => {
 //   let updatedItemTitle = req.body.updatedItemTitle;
 //   let updatedItemId = req.body.updatedItemId;
-//   console.log(req.body);
+//   debugInfo(req.body);
 //   let response = db.query("update items set title=$1 where id=$2", [
 //     updatedItemTitle,
 //     updatedItemId,
@@ -127,10 +130,10 @@ app.post("/addItem", async (req, res) => {
 // });
 
 app.patch("/editItem", async (req, res) => {
-  console.log("Info log: starting editing an item in server");
+  debugInfo("Info log: starting editing an item in server");
   let updatedItemTitle = req.body.updatedItemTitle;
   let updatedItemId = req.body.updatedItemId;
-  console.log(req.body);
+  debugInfo(req.body);
   if (updatedItemId != undefined && updatedItemTitle != undefined) {
     try {
       let response = db.query("update items set title=$1 where id=$2", [
@@ -138,9 +141,9 @@ app.patch("/editItem", async (req, res) => {
         updatedItemId,
       ]);
       res.send({ message: "Success" });
-      console.log("Info log: ending editing an item in server");
+      debugInfo("Info log: ending editing an item in server");
     } catch (error) {
-      console.error(
+      debugError(
         "Error log: There was an error while editing item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -148,7 +151,7 @@ app.patch("/editItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.error(
+    debugError(
       "Error log: either the item's ID or body were missing, but the edit method was called."
     );
   }
@@ -161,16 +164,16 @@ app.patch("/editItem", async (req, res) => {
 // });
 
 app.delete("/deleteItem", async (req, res) => {
-  console.log("Info log: starting deleteing an item in server");
-  console.log("Info log: req.body.data.deleteItemId:" + req.body.deleteItemId);
+  debugInfo("Info log: starting deleteing an item in server");
+  debugInfo("Info log: req.body.data.deleteItemId:" + req.body.deleteItemId);
   let deleteItemId = parseInt(req.body.deleteItemId);
   if (deleteItemId != undefined) {
     try {
       let response = db.query("delete from items where id=$1", [deleteItemId]);
       res.send({ message: "Success" });
-      console.log("Info log: ending deleteing an item in server");
+      debugInfo("Info log: ending deleteing an item in server");
     } catch (error) {
-      console.error(
+      debugError(
         "Error log: There was an error while deteling item. Rolling back..."
       );
       await db.query("ROLLBACK;");
@@ -178,12 +181,12 @@ app.delete("/deleteItem", async (req, res) => {
     }
   } else {
     res.send({ error: "Your last operation encountered an error." });
-    console.error(
+    debugError(
       "Error log: there was no id sent to the server but the delete method was called."
     );
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  debugInfo(`Server running on port ${port}`);
 });
