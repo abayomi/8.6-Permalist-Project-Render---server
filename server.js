@@ -5,8 +5,8 @@ import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import Debug from "debug";
 
-const debugInfo = Debug("apigateway-info-logs");
-const debugError = Debug("apigateway-error-logs");
+const debugInfo = Debug("todoserver-info-logs");
+const debugError = Debug("todoserver-error-logs");
 const app = express();
 const port = 4000;
 const _dirname = dirname(fileURLToPath(import.meta.url));
