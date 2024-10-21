@@ -1,5 +1,5 @@
 import express from "express";
-import pg from "pg";
+import pg, { Pool } from "pg";
 import env from "dotenv";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
@@ -49,14 +49,24 @@ await db
 //username is postgrespermalist in render
 debugInfo("Info log: middleware starting");
 app.use(express.urlencoded({ extended: true }));
-//app.use(express.static("public"));
 app.use(express.json());
+debugInfo("Info log: global error handling middleware start, in server.");
+app.use((error, req, res, next) => {
+  debugError(`Error log: Global error handling started.`);
+  res.send({
+    error:
+      "Your last operation encountered an error. It was handled by the global error handler.",
+  });
+  debugError(`Error log: Global error handling ended.`);
+});
+debugInfo("Info log: global error handling middleware end, in server.");
 debugInfo("Info log: midleware ending");
 
 let items = [];
 
 function performActionsOnceDBConntcted() {}
 
+/*Getting items from database.*/
 async function getItems() {
   //debugInfo("in getItems");
   let response = await db.query("select * from items");
@@ -64,21 +74,7 @@ async function getItems() {
   return response.rows;
 }
 
-// app.get("/", async (req, res) => {
-//   //debugInfo("in /");
-//   items = await getItems();
-//   res.render("index.ejs", {
-//     listTitle: "Today",
-//     listItems: items,
-//   });
-// });
-
-app.get("/", (req, res) => {
-  debugInfo("Info log: starting fetching / in server");
-  res.send("<h1>server</h1>");
-  debugInfo("Info log: ending fetching / in server");
-});
-
+/*Getting all items on a to do list.*/
 app.get("/items", async (req, res) => {
   debugInfo("Info log: starting fetching items in server");
   items = await getItems();
@@ -86,12 +82,7 @@ app.get("/items", async (req, res) => {
   debugInfo("Info log: ending fetching items in server");
 });
 
-// app.post("/add", async (req, res) => {
-//   const item = req.body.newItem;
-//   //items.push({ title: item });
-//   let response = await db.query("insert into items (title) values($1)", [item]);
-//   res.redirect("/");
-// });
+/*Adding an item to the to do list.*/
 app.post("/addItem", async (req, res) => {
   debugInfo("Info log: starting adding an item in server");
   debugInfo("req.body:" + JSON.stringify(req.body));
@@ -118,17 +109,7 @@ app.post("/addItem", async (req, res) => {
   }
 });
 
-// app.post("/edit", async (req, res) => {
-//   let updatedItemTitle = req.body.updatedItemTitle;
-//   let updatedItemId = req.body.updatedItemId;
-//   debugInfo(req.body);
-//   let response = db.query("update items set title=$1 where id=$2", [
-//     updatedItemTitle,
-//     updatedItemId,
-//   ]);
-//   res.redirect("/");
-// });
-
+/*Updating an item on a to do list.*/
 app.patch("/editItem", async (req, res) => {
   debugInfo("Info log: starting editing an item in server");
   let updatedItemTitle = req.body.updatedItemTitle;
@@ -157,12 +138,7 @@ app.patch("/editItem", async (req, res) => {
   }
 });
 
-// app.post("/delete", async (req, res) => {
-//   let deleteItemId = req.body.deleteItemId;
-//   let respinse = db.query("delete from items where id=$1", [deleteItemId]);
-//   res.redirect("/");
-// });
-
+/*Deleting an item on a to do list.*/
 app.delete("/deleteItem", async (req, res) => {
   debugInfo("Info log: starting deleteing an item in server");
   debugInfo("Info log: req.body.data.deleteItemId:" + req.body.deleteItemId);
@@ -187,6 +163,14 @@ app.delete("/deleteItem", async (req, res) => {
   }
 });
 
+/*Handling all endpoint requests that are invalid.*/
+app.all("*", async (req, res) => {
+  debugInfo("Info log: app.all * func start, in server.");
+  res.send({ error: "The URL you entered is not valid." });
+  debugInfo("Info log: app.all * func end, in server.");
+});
+
+/*Listening on port.*/
 app.listen(port, () => {
   debugInfo(`Server running on port ${port}`);
 });
