@@ -99,6 +99,7 @@ let items = [];
 
 /*Having this code in a function allows us to have one central place to make and release connections for simple queries so that this code can be updates in one place. Instead of using pool.query to make the connection, run teh query and release the connection in one line, we have 3 sepearte lines for these three operations. This will allow faster debugging when there is an issue, as we will know quickly which of these three operations caused the error.*/
 async function performQueryReturnResult(queryStatement) {
+  //Promise is returned so that calling function will wait on function result to be obtained before continuing with the steps after the function call
   return new Promise((resolve, reject) => {
     toDoItemsWinstonLogger.info(
       "Info log: Creating database connection, in performQueryReturnResult, in server."
@@ -126,8 +127,8 @@ async function performQueryReturnResult(queryStatement) {
           );
           resolve([undefined, undefined]);
         }
-        toDoItemsWinstonLogger.error(
-          "Info log: YAY Error running query on db, in performQueryReturnResult, in server."
+        toDoItemsWinstonLogger.info(
+          "Info log: Results obtained from query on db, in performQueryReturnResult, in server."
         );
         resolve([res.rows, undefined]);
       });
