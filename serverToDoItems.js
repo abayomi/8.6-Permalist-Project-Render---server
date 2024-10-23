@@ -10,6 +10,7 @@ import {
   checkIsNotUndefined,
 } from "./utils/tryCatch-checkUndefined.js";
 import globalErrorHandlingMiddlewareController from "./controllers/errorController.js";
+import EventEmitter from "events";
 
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
 const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
@@ -20,6 +21,7 @@ const port = 4000;
 const _dirname = dirname(fileURLToPath(import.meta.url));
 let pool;
 let server;
+const emitter = new EventEmitter();
 toDoItemsWinstonLogger.info("_dirname:" + _dirname);
 toDoItemsWinstonLogger.info("End of variable definition.");
 
@@ -97,23 +99,40 @@ let items = [];
 
 /*Having this code in a function allows us to have one central place to make and release connections for simple queries so that this code can be updates in one place. Instead of using pool.query to make the connection, run teh query and release the connection in one line, we have 3 sepearte lines for these three operations. This will allow faster debugging when there is an issue, as we will know quickly which of these three operations caused the error.*/
 async function performQueryReturnResult(queryStatement) {
-  toDoItemsWinstonLogger.info(
-    "Info log: Creating database connection, in performQueryReturnResult, in server."
-  );
-  let client;
-  client = await pool.connect();
-  toDoItemsWinstonLogger.info(
-    "Info log: query sending to DB, in performQueryReturnResult, in server."
-  );
-  const response = await client.query(queryStatement);
-  toDoItemsWinstonLogger.info(
-    "Info log: releasing connection back to pool, in performQueryReturnResult, in server."
-  );
-  client.release(); //Accepts a truthy value which, when true, will destroy the client, instead of returning it to the pool. We want to realse the client as soon as possible so that other suers can use it.
-  toDoItemsWinstonLogger.info(
-    "Info log: returning response rows, in performQueryReturnResult, in server."
-  );
-  return [response.rows, undefined];
+  return new Promise((resolve, reject) => {
+    toDoItemsWinstonLogger.info(
+      "Info log: Creating database connection, in performQueryReturnResult, in server."
+    );
+    let result;
+    const y = pool.connect(async (err, client, release) => {
+      if (err) {
+        toDoItemsWinstonLogger.error(
+          "Error log: Creating database connection crashed, so exiting, in performQueryReturnResult, in server."
+        );
+        emitter.emit("queryCompleted");
+        resolve([undefined, undefined]);
+      }
+      toDoItemsWinstonLogger.info(
+        "Info log: query sending to DB, in performQueryReturnResult, in server."
+      );
+      client.query(queryStatement, (err, res) => {
+        toDoItemsWinstonLogger.info(
+          "Info log: releasing connection back to pool, in performQueryReturnResult, in server."
+        );
+        release(); //Accepts a truthy value which, when true, will destroy the client, instead of returning it to the pool. We want to realse the client as soon as possible so that other suers can use it.
+        if (err) {
+          toDoItemsWinstonLogger.error(
+            "Error log: Error running query on db, in performQueryReturnResult, in server."
+          );
+          resolve([undefined, undefined]);
+        }
+        toDoItemsWinstonLogger.error(
+          "Info log: YAY Error running query on db, in performQueryReturnResult, in server."
+        );
+        resolve([res.rows, undefined]);
+      });
+    });
+  });
 }
 
 /*Getting items from database.
@@ -135,9 +154,12 @@ app.get(
     req.messageInEventOfErrorDuringExecutionOfQuery =
       "Error while getting items";
     const response = await getItems();
-    if (response[1] == undefined)
+    if (response[1] == undefined) {
+      toDoItemsWinstonLogger.info(
+        "Info log: There were no errors while fetching items, in server."
+      );
       res.send({ listTitle: "ARC To Do List", listItems: response[0] });
-    else res.send({ error: "Fetching items failed." });
+    } else res.send({ error: "Fetching items failed." });
     toDoItemsWinstonLogger.info("Info log: ending fetching items in, server.");
   })
 );
