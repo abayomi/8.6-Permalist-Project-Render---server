@@ -95,8 +95,6 @@ toDoItemsWinstonLogger.info("Info log: midleware ending, in server");
 
 let items = [];
 
-function performActionsOnceDBConntcted() {}
-
 /*Having this code in a function allows us to have one central place to make and release connections for simple queries so that this code can be updates in one place. Instead of using pool.query to make the connection, run teh query and release the connection in one line, we have 3 sepearte lines for these three operations. This will allow faster debugging when there is an issue, as we will know quickly which of these three operations caused the error.*/
 async function performQueryReturnResult(queryStatement) {
   toDoItemsWinstonLogger.info(
