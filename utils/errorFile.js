@@ -6,7 +6,7 @@ const debugError = Debug("errorFile-error-logs");
 /*All errors send the same user friendly error page.*/
 function sendErrorFile(res, errorMessage) {
   debugInfo("Info log: sendErrorFile func start, in apigateway.");
-  res.render("error.ejs");
+  res.send({ error: errorMessage });
   debugInfo("Info log: sendErrorFile func end, in apigateway.");
 }
 export { sendErrorFile };
