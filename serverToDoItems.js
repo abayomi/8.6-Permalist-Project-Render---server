@@ -63,8 +63,6 @@ toDoItemsWinstonLogger.info(
   "Info log: midleware app.use statments ending, in server"
 );
 
-let items = [];
-
 app.use("/api/v1/items", toDoItemRouter);
 
 /*Handling all endpoint requests that are invalid.*/
