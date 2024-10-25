@@ -15,6 +15,8 @@ const _dirname = dirname(fileURLToPath(import.meta.url));
 //let pool;
 let server;
 
+console.log("f");
+
 toDoItemsWinstonLogger.info("_dirname:" + _dirname);
 toDoItemsWinstonLogger.info("End of variable definition.");
 
