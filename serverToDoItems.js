@@ -5,7 +5,7 @@ import winston from "winston";
 import "./utils/winstonLogger.js";
 import globalErrorHandlingMiddlewareController from "./controllers/errorController.js";
 import { toDoItemRouter, closingPool } from "./routes/toDoItemRouter.js";
-
+//command to run this file:  node ./serverToDoItems.js
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
 const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
 toDoItemsWinstonLogger.info("Start of variable definition.");
@@ -14,8 +14,6 @@ const port = 4000;
 const _dirname = dirname(fileURLToPath(import.meta.url));
 //let pool;
 let server;
-
-console.log("f");
 
 toDoItemsWinstonLogger.info("_dirname:" + _dirname);
 toDoItemsWinstonLogger.info("End of variable definition.");

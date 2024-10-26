@@ -1,6 +1,4 @@
 import express from "express";
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
 import winston from "winston";
 import "../utils/winstonLogger.js";
 import {
@@ -19,9 +17,7 @@ import {
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
 const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
 toDoItemsWinstonLogger.info("Start of variable definition.");
-const _dirname = dirname(fileURLToPath(import.meta.url));
 const toDoItemRouter = express.Router();
-toDoItemsWinstonLogger.info("_dirname:" + _dirname);
 toDoItemsWinstonLogger.info("End of variable definition.");
 
 //To test errors are caught by server
