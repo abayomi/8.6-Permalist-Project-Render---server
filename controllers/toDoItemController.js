@@ -1,22 +1,27 @@
-import winston from "winston";
-import "../utils/winstonLogger.js";
+import { winstonLogger } from "../utils/winstonLogger.js";
 
+/*import getAllItemsModelUsingPG,
+closingPoolInPGModel,
+itemsAddUsingModelPG,
+itemsEditUsingModelPG,
+itemsDeleteUsingModelPG,
+"../models/itemsModelUsingPG.js";*/
 import {
-  getAllItemsModelUsingPG,
-  closingPoolInPGModel,
-  itemsAddUsingModelPG,
-  itemsEditUsingModelPG,
-  itemsDeleteUsingModelPG,
-} from "../models/itemsModelUsingPG.js";
+  closingPoolInSequelizeModel,
+  itemsAddUsingModelSequelize,
+  getAllItemsModelUsingSequelize,
+  itemsEditUsingModelSequelize,
+  itemsDeleteUsingModelSequelize,
+} from "../models/itemsModelUsingSequelize.js";
 
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
-const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
+const toDoItemsWinstonLogger = winstonLogger;
 
 /*Function to close pool can be exported and imported and called elsewhere*/
 async function closingPoolInController() {
   toDoItemsWinstonLogger.info("Closing db connection pool, in controller.");
   try {
-    const emp = await closingPoolInPGModel();
+    const emp = await closingPoolInSequelizeModel();
   } catch (err) {
     toDoItemsWinstonLogger.error(
       "Error closing db connection pool, in controller."
@@ -33,7 +38,7 @@ async function itemsGetAllController(req, res, next) {
     "Info log: starting fetching items, in toDoItemController."
   );
   req.messageInEventOfErrorDuringExecutionOfQuery = "Error while getting items";
-  const response = await getAllItemsModelUsingPG();
+  const response = await getAllItemsModelUsingSequelize();
   if (response[1] == undefined) {
     toDoItemsWinstonLogger.info(
       "Info log: There were no errors while fetching items, in toDoItemController."
@@ -58,7 +63,7 @@ async function itemsAddController(req, res, next) {
   toDoItemsWinstonLogger.info("req.body:" + JSON.stringify(req.body));
   const item = req.body.newItem;
   if (item != undefined) {
-    const response = await itemsAddUsingModelPG(item);
+    const response = await itemsAddUsingModelSequelize(item);
     if (response[1] == undefined) res.send({ message: "Success" });
     else res.send({ error: "There was an error adding a new item." });
     toDoItemsWinstonLogger.info(
@@ -81,7 +86,10 @@ async function itemsEditController(req, res, next) {
   let updatedItemId = req.body.updatedItemId;
   toDoItemsWinstonLogger.info(req.body);
   if (updatedItemId != undefined && updatedItemTitle != undefined) {
-    let response = itemsEditUsingModelPG(updatedItemTitle, updatedItemId);
+    let response = await itemsEditUsingModelSequelize(
+      updatedItemTitle,
+      updatedItemId
+    );
     if (response[1] == undefined) res.send({ message: "Success" });
     else res.send({ error: "There was an error editing a new item." });
     toDoItemsWinstonLogger.info(
@@ -105,7 +113,7 @@ async function itemsDeleteController(req, res, next) {
   );
   let deleteItemId = parseInt(req.body.deleteItemId);
   if (deleteItemId != undefined) {
-    let response = itemsDeleteUsingModelPG(deleteItemId);
+    let response = itemsDeleteUsingModelSequelize(deleteItemId);
     if (response[1] == undefined) res.send({ message: "Success" });
     else res.send({ error: "There was an error editing a new item." });
     toDoItemsWinstonLogger.info(

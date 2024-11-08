@@ -1,13 +1,12 @@
 import express from "express";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
-import winston from "winston";
-import "./utils/winstonLogger.js";
+import { winstonLogger } from "./utils/winstonLogger.js";
 import globalErrorHandlingMiddlewareController from "./controllers/errorController.js";
 import { toDoItemRouter, closingPool } from "./routes/toDoItemRouter.js";
 //command to run this file:  node ./serverToDoItems.js
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
-const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
+const toDoItemsWinstonLogger = winstonLogger;
 toDoItemsWinstonLogger.info("Start of variable definition.");
 const app = express();
 const port = 4000;

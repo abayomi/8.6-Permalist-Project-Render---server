@@ -10,8 +10,13 @@ const betterstackToDoListServiceToken =
 const logtail = new Logtail(betterstackToDoListServiceToken); //logtail is used to log to betterstack website
 
 const { combine, timestamp, printf, json, errors } = winston.format;
+
+// Determine the log level based on the NODE_ENV environment variable
+console.log(process.env.NODE_ENV);
+const logLevel = process.env.NODE_ENV === "production" ? "silent" : "info";
+
 const winstonLogger = winston.loggers.add("toDoItemsWinstonLogger", {
-  level: "info",
+  level: logLevel,
   format: combine(
     errors({ stack: true }),
     timestamp(),
@@ -23,3 +28,5 @@ const winstonLogger = winston.loggers.add("toDoItemsWinstonLogger", {
     new LogtailTransport(logtail),
   ],
 });
+
+export { winstonLogger };

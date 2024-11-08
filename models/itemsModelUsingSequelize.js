@@ -1,11 +1,13 @@
 import Sequelize from "sequelize";
-import winston from "winston";
-import "../utils/winstonLogger.js";
+import { winstonLogger } from "../utils/winstonLogger.js";
 import env from "dotenv";
 import zlib from "zlib";
+//load the .env depending on the NODE_ENV
+if (process.env.NODE_ENV == "development") {
+  env.config();
+} else env.config({ path: `.env.${process.env.NODE_ENV}` });
 
-env.config();
-const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
+const toDoItemsWinstonLogger = winstonLogger;
 toDoItemsWinstonLogger.info(
   "Start of variable definition, in itemsModelUsingSequelize."
 );
@@ -71,7 +73,6 @@ function defineORM() {
       title: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
-        paranoid: true, //paranoid tables have rows that are not actually deleted but marked with a deleteion timestamp in a column. Model queries ignore these reows but raw queries do not. The restore method removes the deleted timestamp. Use paranoid:false to include soft deleted records.
         validate: { len: [1, 255] },
         set(value) {
           //deflateSync will compress the data taking different types of parameers as input. In this case it takes a string as input. The output of deflateSync is a buffer and we want a string to so we call toString and want to use base64 which is a type of encoding that turns inary data into text. setters and getters cannot take asynchronous functions so deflateSync is used.
@@ -88,7 +89,10 @@ function defineORM() {
         },
       },
     },
-    { timestamp: true }
+    {
+      timestamp: true,
+      paranoid: true, //paranoid tables have rows that are not actually deleted but marked with a deleteion timestamp in a column. Model queries ignore these reows but raw queries do not. The restore method removes the deleted timestamp. Use paranoid:false to include soft deleted records.
+    }
   );
 }
 
@@ -300,7 +304,7 @@ await testConnection();
 defineORM();
 //defineORMUsers();
 //defineAssociations();
-await createAlterTable();
+//await createAlterTable();
 //await itemsAddUsingModelSequelize("delicious");
 await getAllItemsModelUsingSequelize();
 

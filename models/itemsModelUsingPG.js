@@ -1,10 +1,10 @@
 import Pool from "pg-pool";
 import env from "dotenv";
-import winston from "winston";
+import { winstonLogger } from "../utils/winstonLogger.js";
 import "../utils/winstonLogger.js";
 
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
-const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
+const toDoItemsWinstonLogger = winstonLogger;
 toDoItemsWinstonLogger.info("Start of variable definition.");
 let pool;
 toDoItemsWinstonLogger.info("End of variable definition.");

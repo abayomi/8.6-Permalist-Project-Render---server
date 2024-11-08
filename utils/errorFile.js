@@ -1,12 +1,11 @@
-import Debug from "debug";
+import { winstonLogger } from "./winstonLogger.js";
+const toDoItemsWinstonLogger = winstonLogger;
 
-const debugInfo = Debug("errorFile-info-logs");
-const debugError = Debug("errorFile-error-logs");
 
 /*All errors send the same user friendly error page.*/
 function sendErrorFile(res, errorMessage) {
-  debugInfo("Info log: sendErrorFile func start, in apigateway.");
+  toDoItemsWinstonLogger.info("Info log: sendErrorFile func start, in apigateway.");
   res.send({ error: errorMessage });
-  debugInfo("Info log: sendErrorFile func end, in apigateway.");
+  toDoItemsWinstonLogger.info("Info log: sendErrorFile func end, in apigateway.");
 }
 export { sendErrorFile };

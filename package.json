@@ -6,7 +6,14 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node serverToDoItems.js"
+    "start": "node serverToDoItems.js",
+    "dev": "set NODE_ENV=development && node serverToDoItems.js",
+    "prod": "set NODE_ENV=production && node serverToDoItems.js"
+  },
+  "scriptsComments": {
+    "commandsAbove": "Will set NODE_ENV temporarily just for the app to run.",
+    "prod": "Will set NODE_ENV temporarily just for the app to run. To run this in powershell command line terminal, use this line but do not escape the characters as is done here- $env:NODE_ENV=\"development\"; npm start",
+    "dev": "the dev script lets us see all logs"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +27,7 @@
     "morgan": "^1.10.0",
     "path": "^0.12.7",
     "pg": "^8.11.3",
+    "sequelize": "^6.37.5",
     "url": "^0.11.4",
     "winston": "^3.15.0"
   }

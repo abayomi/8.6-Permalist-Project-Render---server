@@ -1,8 +1,7 @@
-import winston from "winston";
-import "./winstonLogger.js";
+import { winstonLogger } from "./winstonLogger.js";
 
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
-const toDoItemsWinstonLogger = winston.loggers.get("toDoItemsWinstonLogger");
+const toDoItemsWinstonLogger = winstonLogger;
 
 /*take a function as an input, call it controller and return an aync function that wraps the input function in a try catch block. */
 function tryCatchAsyncController(controller) {
