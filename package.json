@@ -30,5 +30,19 @@
     "sequelize": "^6.37.5",
     "url": "^0.11.4",
     "winston": "^3.15.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3"
+  },
+  "devDependenciesComments": {
+    "prettier": "to install prettier i ran this command in powershell npm install --save-dev prettier eslint-plugin-prettier eslint-config-prettier",
+    "eslint": "to install eslint i ran this command in powershell npm install eslint --save-dev",
+    "init": "to initilize eslint i ran npx eslint --init",
+    "linting": "to lint run:npx eslint ."
   }
 }
