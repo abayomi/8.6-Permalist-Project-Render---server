@@ -111,7 +111,8 @@ async function itemsDeleteController(req, res, next) {
   toDoItemsWinstonLogger.info(
     "Info log: req.body.data.deleteItemId:" + req.body.deleteItemId
   );
-  let deleteItemId = parseInt(req.body.deleteItemId);
+  //let deleteItemId = parseInt(req.body.deleteItemId);
+  let deleteItemId = req.body.deleteItemId;
   if (deleteItemId != undefined) {
     let response = itemsDeleteUsingModelSequelize(deleteItemId);
     if (response[1] == undefined) res.send({ message: "Success" });
