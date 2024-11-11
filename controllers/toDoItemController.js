@@ -1,18 +1,11 @@
 import { winstonLogger } from "../utils/winstonLogger.js";
-
-/*import getAllItemsModelUsingPG,
-closingPoolInPGModel,
-itemsAddUsingModelPG,
-itemsEditUsingModelPG,
-itemsDeleteUsingModelPG,
-"../models/itemsModelUsingPG.js";*/
 import {
-  closingPoolInSequelizeModel,
+  closingPoolInSequelizeService,
   itemsAddUsingModelSequelize,
   getAllItemsModelUsingSequelize,
   itemsEditUsingModelSequelize,
   itemsDeleteUsingModelSequelize,
-} from "../models/itemsModelUsingSequelize.js";
+} from "../services/itemsService.js";
 
 /*Creating the default winston logger format is json. format: winston.format.cli() gives color coding */
 const toDoItemsWinstonLogger = winstonLogger;
@@ -21,7 +14,7 @@ const toDoItemsWinstonLogger = winstonLogger;
 async function closingPoolInController() {
   toDoItemsWinstonLogger.info("Closing db connection pool, in controller.");
   try {
-    const emp = await closingPoolInSequelizeModel();
+    const emp = await closingPoolInSequelizeService();
   } catch (err) {
     toDoItemsWinstonLogger.error(
       "Error closing db connection pool, in controller."
