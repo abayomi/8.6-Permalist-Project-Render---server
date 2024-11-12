@@ -20,6 +20,7 @@ const winstonLogger = winston.loggers.add("toDoItemsWinstonLogger", {
   format: combine(
     errors({ stack: true }),
     timestamp(),
+    winston.format.colorize(),
     printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
   ),
   transports: [

@@ -31,7 +31,6 @@ export default (sequelize, DataTypes) => {
         const uncompressed = zlib.inflateSync(Buffer.from(value, "base64"));
         return uncompressed.toString();
       },
-
     },
     userId: {
       type: DataTypes.UUID, // UUID for foreign key
@@ -45,7 +44,6 @@ export default (sequelize, DataTypes) => {
     timestamps: true,    // Enable createdAt and updatedAt
     paranoid: true,      // Enable soft deletes (deletedAt field will be set instead of deleting the record)
   });
-
   // Define associations
   items.associate = (models) => {
     // A user can have many items, and each item belongs to a user
